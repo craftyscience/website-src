@@ -1,5 +1,7 @@
 # Simple Svelte App for Craft Science Website
 
+Dan test
+
 The Crafty Science website, which is [here](https://craftyscience.github.io/), is mostly a very simple static site and does not require even basic JS. However, the very nice framework [Svelte](https://svelte.dev/) is used to handle retrevial of sensor data, providing pseudo real-time updates.
 
 To build the website into directory ```dist```:
