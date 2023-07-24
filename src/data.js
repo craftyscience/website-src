@@ -1,5 +1,10 @@
 import axios from "axios";
 import { DateTime, Interval, Duration } from "luxon";
+import { get, writable } from "svelte/store";
+
+// Svelte Store
+export const dataDevices = writable(0);
+export const dataReadings = writable(0);
 
 const API_URL = "https://v1.uwe.avrosense.com/";
 
@@ -21,15 +26,26 @@ function averageBetween(start_dt, end_dt, data) {
     return { time: start_dt, value: data_sum / counter };
 }
 
-export async function getDevices() {
+export async function loadDevices() {
+
+    await axios.get(API_URL + "devices").then(function (response) {
+        console.log("Deviced Fetched - ", response.data)
+        dataDevices.set(response.data);
+    }).catch(function (error) {
+        console.log("An error occured fetching devices.", error);
+    });
+    
+    /*
     return new Promise((resolve) => {
         axios.get(API_URL + "devices").then(function (response) {
             resolve(response.data);
+            devices.set(response.data);
         }).catch(function (error) {
             console.log("An error occured fetching devices.", error);
             resolve(null);
         });
     });
+    */
 }
 
 async function getDeviceData(startDate, endDate, device, averageDuration = null) {
@@ -39,7 +55,7 @@ async function getDeviceData(startDate, endDate, device, averageDuration = null)
         result["data"] = [];
 
         let url = `${API_URL}device/${device.id}?start=${startDate.toMillis()}&finish=${endDate.toMillis()}`;
-
+        console.log(url)
         axios.get(url).then(function (response) {
 
             if (averageDuration == null) {
@@ -64,6 +80,43 @@ async function getDeviceData(startDate, endDate, device, averageDuration = null)
         });
 
     });
+}
+
+export async function loadData(startDate, endDate, averageDuration = null) {
+
+    let start = DateTime.fromFormat(startDate, "yyyy-MM-dd").set({
+        hour: 0,
+        minute: 0,
+        second: 0,
+      });
+  
+    // Set end to end of the end date (to include all data on that day)
+    let end = DateTime.fromFormat(endDate, "yyyy-MM-dd").set({
+        hour: 23,
+        minute: 59,
+        second: 59,
+    });
+  
+    // End date is today - set end to current time so graph uses all space available
+    if (end.diff(DateTime.now(), ["hours"]).hours < 24) {
+        end = DateTime.now();
+    }
+
+    let duration = null;
+    if (averageDuration == 1) duration = { hours: 1 };
+    else if (averageDuration == 2) duration = { days: 1 };
+
+    let result = [];
+    let promises = [];
+    let devices = get(dataDevices);
+    console.log("Devices For Load", devices);
+    for (let i = 0; i < devices.length; i++) {
+        promises.push(getDeviceData(start, end, devices[i], duration)); 
+    }
+
+    result = await Promise.all(promises);
+
+    dataReadings.set(result);
 }
 
 export async function getData(startDate, endDate, devices, averageDuration = null) {
