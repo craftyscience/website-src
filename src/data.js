@@ -28,7 +28,8 @@ function averageBetween(start_dt, end_dt, data) {
 
 export async function loadDevices() {
 
-    axios.get(API_URL + "devices").then(function (response) {
+    await axios.get(API_URL + "devices").then(function (response) {
+        console.log("Deviced Fetched - ", response.data)
         dataDevices.set(response.data);
     }).catch(function (error) {
         console.log("An error occured fetching devices.", error);

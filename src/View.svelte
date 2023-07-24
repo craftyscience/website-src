@@ -15,7 +15,8 @@
     let selectedAverage;
 
     onMount(async function () {
-        reloadData();
+        await loadDevices();
+        await loadData(startDate, endDate, selectedAverage);
         add();
     });
 
