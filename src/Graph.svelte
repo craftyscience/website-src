@@ -1,3 +1,4 @@
+<!--
 <script>
   import { onMount } from "svelte";
   import Chart from "chart.js/auto";
@@ -163,8 +164,6 @@
 <input type="date" bind:value={start_date} on:change={graphLoad} />
 <input type="date" bind:value={end_date} on:change={graphLoad} />
 
-
-
 <select bind:value={selectedAverage} on:change={graphLoad}>
   <option value="0">No Average</option>
   <option value="1">Hourly Average</option>
@@ -174,3 +173,4 @@
 <canvas id="graph" bind:this={graphCanvas} />
 
 <button on:click={resetZoom}>Reset View</button>
+-->
